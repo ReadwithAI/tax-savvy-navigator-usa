@@ -1,4 +1,3 @@
-
 export interface TaxStrategy {
   id: string;
   name: string;
@@ -146,6 +145,124 @@ export const taxStrategies: TaxStrategy[] = [
         min: Math.round(Math.min(savings, 3000 * ordinaryIncomeTaxRate)), 
         max: Math.round(savings)
       };
+    }
+  },
+  {
+    id: "form_llc_section_179",
+    name: "Form an LLC for Section 179 Deductions",
+    description: "W2 employees can form an LLC for a side business and take advantage of Section 179 deductions for qualifying equipment purchases.",
+    eligibilityCriteria: [
+      "Must have or plan to start a legitimate side business",
+      "Business must have a profit motive (not a hobby)",
+      "Must purchase qualifying equipment used more than 50% for business"
+    ],
+    potentialSavings: "Up to $1,160,000 in deductions for qualifying equipment purchases (2023), subject to income limits",
+    implementationSteps: [
+      "Consult with a business attorney to form an LLC",
+      "Obtain an EIN from the IRS",
+      "Open a separate business bank account",
+      "Document the business purpose and maintain proper records",
+      "Purchase qualifying equipment for business use",
+      "Work with a CPA to properly document and claim Section 179 deductions"
+    ],
+    isEligible: (inputs) => inputs.salary > 50000, // Basic eligibility for someone with stable income
+    calculateSavings: (inputs) => {
+      const taxBracket = estimateTaxBracket(inputs);
+      // Assume potential equipment purchase based on income
+      const potentialEquipmentPurchase = Math.min(inputs.totalCompensation * 0.1, 50000);
+      const savings = potentialEquipmentPurchase * (taxBracket / 100);
+      return { min: Math.round(savings * 0.5), max: Math.round(savings) };
+    }
+  },
+  {
+    id: "real_estate_investment",
+    name: "Real Estate Investment Through LLC",
+    description: "Invest in real estate through an LLC to access tax benefits including depreciation deductions, mortgage interest deductions, and expense write-offs.",
+    eligibilityCriteria: [
+      "Sufficient capital or financing for down payment",
+      "Good credit score for mortgage qualification",
+      "Time available to manage property or budget for property management"
+    ],
+    potentialSavings: "15-30% of property value over time through various tax deductions and benefits",
+    implementationSteps: [
+      "Consult with a real estate attorney about forming an LLC",
+      "Meet with a mortgage broker to understand financing options",
+      "Research local real estate markets and investment opportunities",
+      "Develop a business plan for your real estate activities",
+      "Purchase property through the LLC structure",
+      "Work with a CPA experienced in real estate taxation"
+    ],
+    isEligible: (inputs) => inputs.totalCompensation > 100000 || inputs.itemizedDeductions > 10000,
+    calculateSavings: (inputs) => {
+      const taxBracket = estimateTaxBracket(inputs);
+      // Estimate based on potential property investment relative to income
+      const potentialPropertyValue = inputs.totalCompensation * 2; // Rough estimate
+      const annualDepreciation = potentialPropertyValue * 0.02; // Simplified depreciation calculation
+      const mortgageInterest = potentialPropertyValue * 0.03; // Estimate mortgage interest
+      const expenses = potentialPropertyValue * 0.01; // Other expenses
+      
+      const totalDeductions = annualDepreciation + mortgageInterest + expenses;
+      const savings = totalDeductions * (taxBracket / 100);
+      
+      return { min: Math.round(savings * 0.5), max: Math.round(savings) };
+    }
+  },
+  {
+    id: "sep_ira_solo_401k",
+    name: "SEP IRA or Solo 401(k) for Side Business",
+    description: "W2 employees with side business income can open a SEP IRA or Solo 401(k) to make significant tax-deferred retirement contributions beyond their employer's plan.",
+    eligibilityCriteria: [
+      "Must have self-employment or business income",
+      "Business must be profitable",
+      "Solo 401(k) requires no full-time employees (besides spouse)"
+    ],
+    potentialSavings: "Up to $66,000 annual tax-deferred contributions (2023), depending on income",
+    implementationSteps: [
+      "Establish a legitimate side business or consulting work",
+      "Choose between SEP IRA or Solo 401(k) based on your situation",
+      "Open an account with a financial institution",
+      "Make regular contributions based on business income",
+      "File appropriate tax forms with your tax return"
+    ],
+    isEligible: (inputs) => inputs.otherIncome > 5000 || inputs.salary > 75000,
+    calculateSavings: (inputs) => {
+      const taxBracket = estimateTaxBracket(inputs);
+      // Estimate potential contribution based on other income (assumed business income)
+      const potentialBusinessIncome = inputs.otherIncome > 0 ? inputs.otherIncome : inputs.salary * 0.1;
+      const potentialContribution = Math.min(potentialBusinessIncome * 0.25, 66000);
+      const savings = potentialContribution * (taxBracket / 100);
+      
+      return { min: Math.round(savings * 0.6), max: Math.round(savings) };
+    }
+  },
+  {
+    id: "home_office_deduction",
+    name: "Home Office Deduction for Side Business",
+    description: "If you have a side business and use part of your home regularly and exclusively for business activities, you may qualify for the home office deduction.",
+    eligibilityCriteria: [
+      "Must have a legitimate side business",
+      "Must use part of your home regularly and exclusively for business",
+      "Space must be your principal place of business or used for regular client meetings"
+    ],
+    potentialSavings: "Deduction for a portion of home expenses including mortgage interest, utilities, repairs, and depreciation",
+    implementationSteps: [
+      "Designate a specific area used exclusively for business",
+      "Calculate the percentage of your home used for business",
+      "Track all related home expenses throughout the year",
+      "Choose between simplified or regular method for calculating deduction",
+      "Complete Form 8829 with your tax return"
+    ],
+    isEligible: (inputs) => inputs.homeowner && (inputs.otherIncome > 0 || inputs.salary > 50000),
+    calculateSavings: (inputs) => {
+      const taxBracket = estimateTaxBracket(inputs);
+      // Assumes an average home and a reasonable percentage used for home office
+      const estimatedHomeValue = inputs.totalCompensation * 2;
+      const estimatedAnnualCosts = estimatedHomeValue * 0.05; // Mortgage, taxes, insurance, utilities
+      const homeOfficePercentage = 0.1; // 10% of home used for business
+      const totalDeduction = estimatedAnnualCosts * homeOfficePercentage;
+      const savings = totalDeduction * (taxBracket / 100);
+      
+      return { min: Math.round(savings * 0.5), max: Math.round(savings) };
     }
   }
 ];
