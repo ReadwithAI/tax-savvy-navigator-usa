@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { TaxInputs } from "@/utils/calculators";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { TaxInputs, calculateTotalIncome } from "@/utils/calculators";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 
 interface TaxFormProps {
@@ -31,6 +31,7 @@ export const TaxForm = ({ onSubmit }: TaxFormProps) => {
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -43,6 +44,17 @@ export const TaxForm = ({ onSubmit }: TaxFormProps) => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+
+    // Clear previous messages when user makes changes
+    setError(null);
+    setInfoMessage(null);
+  };
+
+  // Auto-calculate total compensation based on sources
+  const handleCalculateTotal = () => {
+    const calculatedTotal = calculateTotalIncome(formData);
+    setFormData({ ...formData, totalCompensation: calculatedTotal });
+    setInfoMessage("Total compensation auto-calculated from your income sources.");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -55,16 +67,16 @@ export const TaxForm = ({ onSubmit }: TaxFormProps) => {
     }
 
     // Check if income sources add up reasonably to total compensation
-    const totalIncomeEntered = formData.salary + formData.rsu + 
-      formData.dividends + formData.capitalGains + formData.otherIncome;
+    const totalIncomeEntered = calculateTotalIncome(formData);
     
-    // Allow some flexibility (within 10% difference)
-    if (Math.abs(totalIncomeEntered - formData.totalCompensation) > formData.totalCompensation * 0.1) {
-      setError("Your income sources don't approximately match your total compensation");
+    // Allow more flexibility (within 20% difference instead of 10%)
+    if (Math.abs(totalIncomeEntered - formData.totalCompensation) > formData.totalCompensation * 0.2) {
+      setError("Your income sources don't approximately match your total compensation. You can use the 'Calculate Total' button to set the correct value.");
       return;
     }
 
     setError(null);
+    setInfoMessage(null);
     onSubmit(formData);
   };
 
@@ -142,16 +154,29 @@ export const TaxForm = ({ onSubmit }: TaxFormProps) => {
           
           <div className="space-y-2">
             <Label htmlFor="totalCompensation">Total Compensation ($)</Label>
-            <Input
-              id="totalCompensation"
-              name="totalCompensation"
-              type="number"
-              min="0"
-              required
-              value={formData.totalCompensation || ''}
-              onChange={handleInputChange}
-              className="w-full"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="totalCompensation"
+                name="totalCompensation"
+                type="number"
+                min="0"
+                required
+                value={formData.totalCompensation || ''}
+                onChange={handleInputChange}
+                className="w-full"
+              />
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleCalculateTotal}
+                className="whitespace-nowrap"
+              >
+                Calculate Total
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Total should approximately match the sum of your income sources above
+            </p>
           </div>
         </div>
       </div>
@@ -311,6 +336,13 @@ export const TaxForm = ({ onSubmit }: TaxFormProps) => {
       {error && (
         <Alert variant="destructive" className="mt-4">
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {infoMessage && (
+        <Alert variant="default" className="mt-4 bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4" />
+          <AlertDescription>{infoMessage}</AlertDescription>
         </Alert>
       )}
 
