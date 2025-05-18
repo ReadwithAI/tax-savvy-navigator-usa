@@ -68,7 +68,7 @@ export const estimateTaxableIncome = (inputs: TaxInputs): number => {
 };
 
 export const estimateFederalTax = (inputs: TaxInputs): number => {
-  const taxableIncome = estimateTaxableIncome(inputs);
+  let taxableIncome = estimateTaxableIncome(inputs);
   
   // 2023 tax brackets (simplified)
   let tax = 0;
