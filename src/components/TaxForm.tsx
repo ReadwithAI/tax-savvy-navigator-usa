@@ -1,4 +1,4 @@
-
+import React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ export const TaxForm = ({ onSubmit }: TaxFormProps) => {
     stateOfResidence: "CA",
     retirement401k: 0,
     itemizedDeductions: 0,
+    hoursWillingToWork: 10,
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -305,6 +306,21 @@ export const TaxForm = ({ onSubmit }: TaxFormProps) => {
               onChange={handleInputChange}
               className="w-full"
             />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="hoursWillingToWork">How many hours per year are you willing to spend to save on taxes?</Label>
+            <select
+              id="hoursWillingToWork"
+              name="hoursWillingToWork"
+              value={formData.hoursWillingToWork}
+              onChange={handleInputChange}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value={10}>{"Less than 20 hours (minimal effort)"}</option>
+              <option value={60}>{"20-100 hours (moderate effort)"}</option>
+              <option value={150}>{"100+ hours (high effort)"}</option>
+            </select>
           </div>
           
           <div className="flex items-center space-x-2 pt-6">

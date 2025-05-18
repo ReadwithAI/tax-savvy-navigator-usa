@@ -7,6 +7,7 @@ export interface TaxStrategy {
   implementationSteps: string[];
   isEligible: (inputs: any) => boolean;
   calculateSavings: (inputs: any) => { min: number; max: number };
+  minEffortHours: number;
 }
 
 export const taxStrategies: TaxStrategy[] = [
@@ -33,7 +34,8 @@ export const taxStrategies: TaxStrategy[] = [
       const minSavings = potentialAdditionalContrib * 0.22; // 22% bracket minimum
       const maxSavings = potentialAdditionalContrib * (taxBracket / 100);
       return { min: Math.round(minSavings), max: Math.round(maxSavings) };
-    }
+    },
+    minEffortHours: 10
   },
   {
     id: "hsa_contributions",
@@ -56,7 +58,8 @@ export const taxStrategies: TaxStrategy[] = [
       const contributionLimit = inputs.filingStatus === "single" ? 3850 : 7750;
       const potentialSavings = contributionLimit * (taxBracket / 100);
       return { min: Math.round(potentialSavings * 0.8), max: Math.round(potentialSavings) };
-    }
+    },
+    minEffortHours: 10
   },
   {
     id: "section_179",
@@ -79,7 +82,8 @@ export const taxStrategies: TaxStrategy[] = [
       const potentialDeduction = Math.min(estimatedBusinessAssets, 1080000); // 2023 limit
       const savings = potentialDeduction * (taxBracket / 100);
       return { min: Math.round(savings * 0.5), max: Math.round(savings) };
-    }
+    },
+    minEffortHours: 100
   },
   {
     id: "charitable_contributions",
@@ -114,7 +118,8 @@ export const taxStrategies: TaxStrategy[] = [
           : 0;
           
       return { min: Math.round(effectiveSavings * 0.5), max: Math.round(taxSavings) };
-    }
+    },
+    minEffortHours: 10
   },
   {
     id: "tax_loss_harvesting",
@@ -145,7 +150,8 @@ export const taxStrategies: TaxStrategy[] = [
         min: Math.round(Math.min(savings, 3000 * ordinaryIncomeTaxRate)), 
         max: Math.round(savings)
       };
-    }
+    },
+    minEffortHours: 10
   },
   {
     id: "form_llc_section_179",
@@ -172,7 +178,8 @@ export const taxStrategies: TaxStrategy[] = [
       const potentialEquipmentPurchase = Math.min(inputs.totalCompensation * 0.1, 50000);
       const savings = potentialEquipmentPurchase * (taxBracket / 100);
       return { min: Math.round(savings * 0.5), max: Math.round(savings) };
-    }
+    },
+    minEffortHours: 100
   },
   {
     id: "real_estate_investment",
@@ -205,7 +212,8 @@ export const taxStrategies: TaxStrategy[] = [
       const savings = totalDeductions * (taxBracket / 100);
       
       return { min: Math.round(savings * 0.5), max: Math.round(savings) };
-    }
+    },
+    minEffortHours: 60
   },
   {
     id: "sep_ira_solo_401k",
@@ -233,7 +241,8 @@ export const taxStrategies: TaxStrategy[] = [
       const savings = potentialContribution * (taxBracket / 100);
       
       return { min: Math.round(savings * 0.6), max: Math.round(savings) };
-    }
+    },
+    minEffortHours: 100
   },
   {
     id: "home_office_deduction",
@@ -263,7 +272,8 @@ export const taxStrategies: TaxStrategy[] = [
       const savings = totalDeduction * (taxBracket / 100);
       
       return { min: Math.round(savings * 0.5), max: Math.round(savings) };
-    }
+    },
+    minEffortHours: 10
   }
 ];
 

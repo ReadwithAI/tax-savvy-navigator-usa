@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,9 +17,10 @@ interface StrategyCardProps {
     min: number;
     max: number;
   };
+  onChat?: (strategy: TaxStrategy) => void;
 }
 
-export const StrategyCard = ({ strategy, potentialSavings }: StrategyCardProps) => {
+export const StrategyCard = ({ strategy, potentialSavings, onChat }: StrategyCardProps) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -82,6 +82,11 @@ export const StrategyCard = ({ strategy, potentialSavings }: StrategyCardProps) 
             </div>
           </DialogContent>
         </Dialog>
+        {onChat && (
+          <Button variant="secondary" className="w-full mt-2" onClick={() => onChat(strategy)}>
+            Chat about this strategy
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

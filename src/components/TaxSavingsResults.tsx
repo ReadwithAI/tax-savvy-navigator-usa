@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TaxInputs, StrategySavings, estimateFederalTax, estimateTaxableIncome } from "@/utils/calculators";
@@ -7,6 +6,8 @@ import { StrategyCard } from "@/components/StrategyCard";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
+import { ChatDrawer } from "@/components/ChatDrawer";
 
 interface TaxSavingsResultsProps {
   taxInputs: TaxInputs;
@@ -15,6 +16,9 @@ interface TaxSavingsResultsProps {
 
 export const TaxSavingsResults = ({ taxInputs, onReset }: TaxSavingsResultsProps) => {
   const [showAll, setShowAll] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatStrategy, setChatStrategy] = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -26,10 +30,10 @@ export const TaxSavingsResults = ({ taxInputs, onReset }: TaxSavingsResultsProps
 
   // Get eligible strategies and calculate potential savings
   const eligibleStrategies = taxStrategies
+    .filter(strategy => strategy.minEffortHours <= taxInputs.hoursWillingToWork)
     .map(strategy => {
       const isEligible = strategy.isEligible(taxInputs);
       const savings = strategy.calculateSavings(taxInputs);
-      
       return {
         strategy,
         isEligible,
@@ -46,6 +50,11 @@ export const TaxSavingsResults = ({ taxInputs, onReset }: TaxSavingsResultsProps
   const totalPotentialSavings = eligibleStrategies
     .filter(item => item.isEligible)
     .reduce((sum, item) => sum + item.potentialSavings.max, 0);
+
+  const handleChat = (strategy) => {
+    setChatStrategy(strategy);
+    setChatOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -99,7 +108,7 @@ export const TaxSavingsResults = ({ taxInputs, onReset }: TaxSavingsResultsProps
         <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
           <Info className="h-4 w-4" />
           <AlertDescription>
-            These recommendations are based on the information you provided. Consult with a tax professional before implementing any strategy.
+            These recommendations are personalized based on your willingness to spend time on tax-saving activities. Consult with a tax professional before implementing any strategy.
           </AlertDescription>
         </Alert>
         
@@ -112,6 +121,7 @@ export const TaxSavingsResults = ({ taxInputs, onReset }: TaxSavingsResultsProps
               <StrategyCard 
                 strategy={strategy}
                 potentialSavings={potentialSavings}
+                onChat={handleChat}
               />
               {!isEligible && (
                 <div className="mt-2 text-sm text-gray-500 italic">
@@ -141,6 +151,24 @@ export const TaxSavingsResults = ({ taxInputs, onReset }: TaxSavingsResultsProps
           before implementing any tax strategy.
         </p>
       </div>
+
+      {/* Chat Drawer */}
+      <Drawer open={chatOpen} onOpenChange={setChatOpen} shouldScaleBackground>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Chat about {chatStrategy?.name}</DrawerTitle>
+            <DrawerDescription>{chatStrategy?.description}</DrawerDescription>
+          </DrawerHeader>
+          {chatStrategy && (
+            <ChatDrawer 
+              strategy={chatStrategy} 
+              userProfile={taxInputs} 
+              chatHistory={chatHistory} 
+              setChatHistory={setChatHistory}
+            />
+          )}
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };

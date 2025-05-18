@@ -1,4 +1,3 @@
-
 export interface TaxInputs {
   salary: number;
   rsu: number;
@@ -13,6 +12,7 @@ export interface TaxInputs {
   stateOfResidence: string;
   retirement401k: number;
   itemizedDeductions: number;
+  hoursWillingToWork: number;
 }
 
 export interface StrategySavings {
